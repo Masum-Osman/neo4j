@@ -21,7 +21,16 @@ func main() {
 	fmt.Printf("%v\n", item)
 }
 
-// func setItem(driver neo4j.Driver)
+func setItem(driver neo4j.Driver) {
+	records, err := tx.Run(`
+	match (n:Item{name: "Item 1"})
+	set n.surname = "anupom"
+	return n`,
+		map[string]interface{}{
+			"id":   2,
+			"name": "Item 2",
+		})
+}
 
 func insertItem(driver neo4j.Driver) (*Item, error) {
 	session := driver.NewSession(neo4j.SessionConfig{})
