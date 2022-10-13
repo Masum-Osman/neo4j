@@ -36,14 +36,10 @@ func insertItem(driver neo4j.Driver) (*Item, error) {
 }
 
 func createItemFn(tx neo4j.Transaction) (interface{}, error) {
-	records, err := tx.Run(`
-		match (n:Item{name: "Item 1"})
-		set n.surname = "anupom"
-		return n`,
-		map[string]interface{}{
-			"id":   2,
-			"name": "Item 2",
-		})
+	records, err := tx.Run("CREATE (n:Item{id: $id, name: $name }) RETURN n.id, n.name", map[string]interface{}{
+		"id":   2,
+		"name": "Item 2",
+	})
 	if err != nil {
 		return nil, err
 	}
