@@ -19,17 +19,45 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf("%v\n", item)
+
+	set, err := setItem(driver)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(set)
 }
 
-func setItem(driver neo4j.Driver) {
-	records, err := tx.Run(`
-	match (n:Item{name: "Item 1"})
-	set n.surname = "anupom"
-	return n`,
-		map[string]interface{}{
-			"id":   2,
-			"name": "Item 2",
-		})
+func setItem(driver neo4j.Driver) (string, error) {
+
+	session := driver.NewSession(neo4j.SessionConfig{})
+	defer session.Close()
+
+	_, err := session.WriteTransaction(func(tx neo4j.Transaction) (any, error) {
+		result, err := tx.Run(`
+		match (n:Item{name: "Item 1"})
+		set n.surname = "anupom"
+		return n`,
+			map[string]interface{}{
+				"id":   2,
+				"name": "Item 2",
+			})
+		if err != nil {
+			return nil, err
+		}
+
+		if result.Next() {
+			return result.Record().Values[0], nil
+		}
+
+		return nil, result.Err()
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return "greeting.(string)", nil
+
 }
 
 func insertItem(driver neo4j.Driver) (*Item, error) {
