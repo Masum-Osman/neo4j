@@ -27,6 +27,24 @@ func main() {
 	fmt.Println(set)
 }
 
+func matchItem(driver neo4j.Driver) {
+	session := driver.NewSession(neo4j.SessionConfig{})
+	defer session.Close()
+
+	_, err := session.WriteTransaction(func(tx neo4j.Transaction) (any, error) {
+		result, err := tx.Run(
+			`match (n:Item{name: $name})
+			 return n
+			`, map[string]any{
+				"name": "Item 1",
+			})
+		if err != nil {
+			return nil, err
+		}
+		return
+	})
+}
+
 func setItem(driver neo4j.Driver) (string, error) {
 
 	session := driver.NewSession(neo4j.SessionConfig{})
